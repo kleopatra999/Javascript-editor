@@ -8,6 +8,7 @@ function Editor( element ){
   this.range = null;
   this.element = element;
   this.status = false;
+  this.keyUpCallback = null;
   this.init();
 }
 
@@ -40,14 +41,23 @@ Editor.prototype.toggleStatus = function(){
   this.toggleEdition();
 };
 
+Editor.prototype.factory = function( obj, callback ){
+  var fct = function(){
+    callback.apply( obj, arguments);
+  };
+  return fct; 
+};
+
 Editor.prototype.toggleEdition = function(){
   this.addAttribute( 'contentEditable', this.getStatus() );
   if( this.getStatus() ){
     this.addAttribute( 'class', 'editor edition' );
-    this.element.addEventListener('mouseup', this.getSelection, false );
+    this.keyUpCallback = this.factory( this, this.getSelection);
+    this.element.addEventListener('mouseup', this.keyUpCallback, false );
   } else {
     this.addAttribute( 'class', 'editor' );
-    this.element.removeEventListener('mouseup', this.getSelection, false );
+    this.element.removeEventListener('mouseup', this.keyUpCallback, false );
+    this.keyUpCallback = null;
   }
 };
 
@@ -67,6 +77,8 @@ Editor.prototype.getSelection = function(){
     'focusOffset': selection.focusOffset
   };
   toStr( this.storedSelection );
+  console.log( 'this: ' + this );
+
 };
 
 Editor.prototype.setRange = function(){
