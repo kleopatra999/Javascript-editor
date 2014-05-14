@@ -10,9 +10,9 @@ function toStr( obj ){
     }
     output = arr.join( "\n" );
   } else {
-    output = 'toString: unexpected type: ' + typeof obj;
+    output = 'toString: @param obj is not an object ( type: ' + typeof obj +')';
   }
-  return console.log( output );
+  return output;
 }
 
 var editors = document.getElementsByClassName('editor');

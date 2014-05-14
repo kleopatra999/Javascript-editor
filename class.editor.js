@@ -3,12 +3,13 @@
 // class.editor.js
 
 function Editor( element ){
-  this.storedSelection = {};
   this.selection = null;
   this.range = null;
   this.element = element;
-  this.status = false;
+  this.edition = false;
+  this.contextualStatus = false;
   this.keyUpCallback = null;
+  this.clickCallback = null;
   this.init();
 }
 
@@ -17,11 +18,11 @@ Editor.prototype.init = function(){
 };
 
 Editor.prototype.setStatus = function( status ){
-  this.status = status;
+  this.edition = status;
 };
 
 Editor.prototype.getStatus = function(){
-  return this.status;
+  return this.edition;
 };
 
 Editor.prototype.addAttribute = function( att, value ){
@@ -48,48 +49,62 @@ Editor.prototype.factory = function( obj, callback ){
   return fct; 
 };
 
+Editor.prototype.toggleContextual = function(){
+  // Hide contextual
+  this.contextualStatus = false;
+  this.range = null;
+  this.selection = null;
+};
+
 Editor.prototype.toggleEdition = function(){
   this.addAttribute( 'contenteditable', this.getStatus() );
   if( this.getStatus() ){
     this.addAttribute( 'class', 'editor edition' );
-    this.keyUpCallback = this.factory( this, this.getSelection);
+    // Add keyup event.
+    this.keyUpCallback = this.factory( this, this.getSelection );
     this.element.addEventListener('mouseup', this.keyUpCallback, false );
+
+    // Add click event.
+    // this.clickCallback = this.factory( this, this.toggleContextual );
+    // this.element.addEventListener('mouseup', this.toggleContextual, false );
+    
   } else {
     this.addAttribute( 'class', 'editor' );
+    // Remove keyup event.
     this.element.removeEventListener('mouseup', this.keyUpCallback, false );
     this.keyUpCallback = null;
+    // Remove click event.
+    //this.element.removeEventListener('mouseup', this.toggleContextual, false );
+    //this.clickUpCallback = null;
   }
 };
 
 Editor.prototype.getSelection = function(){
   // https://developer.mozilla.org/en-US/docs/Web/API/Selection
-  var selection;
   if ( window.getSelection ) {
-    selection = window.getSelection();
+    this.selection = window.getSelection();
   } else if ( document.selection ) {
-    selection = document.selection.createRange();
+    this.selection = document.selection.createRange();
   }
-  this.storedSelection = {
-    'isCollapsed': selection.isCollapsed,
-    'anchorNode': selection.anchorNode,
-    'anchorOffset': selection.anchorOffset,
-    'focusNode': selection.focusNode,
-    'focusOffset': selection.focusOffset
-  };
-  toStr( this.storedSelection );
-  console.log( 'this: ' + this );
 
+  if( this.selection && !this.selection.isCollapse ){
+    // Display contextual
+    this.setRange();
+    //this.getRangePosition();
+  }
 };
 
 Editor.prototype.setRange = function(){
   // https://developer.mozilla.org/en-US/docs/Web/API/range
-  this.selection = null;
-  this.selection = window.getSelection();
-  this.selection.removeAllRanges();
   this.range = document.createRange();
-  this.range.setStart( this.storedSelection.anchorNode, this.storedSelection.anchorOffset );
-  this.range.setEnd( this.storedSelection.focusNode, this.storedSelection.focusOffset );
+  this.range.setStart( this.selection.anchorNode, this.selection.anchorOffset );
+  this.range.setEnd( this.selection.focusNode, this.selection.focusOffset );
   return this.selection.addRange( this.range );
 };
 
+Editor.prototype.getRangePosition = function(){
+  var rectList;
+  rectList = this.range.getClientRects();
+  return rectList.item( 0 );
+};
 
