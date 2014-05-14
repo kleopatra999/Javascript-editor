@@ -94,6 +94,7 @@ Editor.prototype.getSelection = function(){
   }
 };
 
+
 Editor.prototype.setRange = function(){
   // https://developer.mozilla.org/en-US/docs/Web/API/range
   this.range = document.createRange();
