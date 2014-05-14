@@ -49,7 +49,7 @@ Editor.prototype.factory = function( obj, callback ){
 };
 
 Editor.prototype.toggleEdition = function(){
-  this.addAttribute( 'contentEditable', this.getStatus() );
+  this.addAttribute( 'contenteditable', this.getStatus() );
   if( this.getStatus() ){
     this.addAttribute( 'class', 'editor edition' );
     this.keyUpCallback = this.factory( this, this.getSelection);
