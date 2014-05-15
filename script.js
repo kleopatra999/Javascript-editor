@@ -1,6 +1,11 @@
 
 // script.js
 
+function arraySort( arr ){
+  arr.sort(function(a, b){ return a-b; });
+  return arr;
+}
+
 function toStr( obj ){
   var output, arr, p;
   if( typeof obj === 'object' ){
